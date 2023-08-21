@@ -1,0 +1,16 @@
+{
+  "name": "bun_python",
+  "module": "index.ts",
+  "type": "module",
+  "version": "0.0.1",
+  "author": {
+    "name": "CodeHz",
+    "email": "codehz@outlook.com"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
