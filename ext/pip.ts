@@ -100,3 +100,6 @@ export class Pip {
     return python.import(entrypoint);
   }
 }
+
+const pip = new Pip();
+export default pip;
