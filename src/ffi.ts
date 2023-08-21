@@ -1,13 +1,18 @@
-import { dlopen, Library } from 'bun:ffi';
-import * as OS from 'node:os';
-import { SYMBOLS } from './symbols';
+import { dlopen, Library } from "bun:ffi";
+import * as OS from "node:os";
+import { SYMBOLS } from "./symbols";
+
+const os = OS.type();
 
 const searchPath: string[] = [];
 
-const SUPPORTED_VERSIONS = [[3, 11], [3, 10], [3, 9], [3, 8]];
-const BUN_PYTHON_PATH = Bun.env['BUN_PYTHON_PATH']
-
-const os = OS.type();
+const SUPPORTED_VERSIONS = [
+  [3, 11],
+  [3, 10],
+  [3, 9],
+  [3, 8],
+];
+const BUN_PYTHON_PATH = Bun.env["BUN_PYTHON_PATH"];
 
 if (BUN_PYTHON_PATH) {
   searchPath.push(BUN_PYTHON_PATH);
@@ -16,19 +21,19 @@ if (BUN_PYTHON_PATH) {
     case "Windows":
     case "Linux":
       searchPath.push(
-        ...SUPPORTED_VERSIONS.map(([major, minor]) =>
-          `${os === "Linux" ? "lib" : ""}python${major}${os === "Linux" ? "." : ""
-          }${minor}.${os === "Linux" ? "so" : "dll"}`
-        ),
+        ...SUPPORTED_VERSIONS.map(
+          ([major, minor]) =>
+            `${os === "Linux" ? "lib" : ""}python${major}${
+              os === "Linux" ? "." : ""
+            }${minor}.${os === "Linux" ? "so" : "dll"}`
+        )
       );
       break;
     case "Darwin":
-      for (
-        const framework of [
-          "/opt/homebrew/Frameworks/Python.framework/Versions",
-          "/usr/local/Frameworks/Python.framework/Versions",
-        ]
-      ) {
+      for (const framework of [
+        "/opt/homebrew/Frameworks/Python.framework/Versions",
+        "/usr/local/Frameworks/Python.framework/Versions",
+      ]) {
         for (const [major, minor] of SUPPORTED_VERSIONS) {
           searchPath.push(`${framework}/${major}.${minor}/Python`);
         }
@@ -39,7 +44,9 @@ if (BUN_PYTHON_PATH) {
   }
 }
 
-let py!: Library<SYMBOLS>["symbols"]
+let py!: Library<SYMBOLS>["symbols"];
+
+console.log(searchPath);
 
 for (const path of searchPath) {
   try {
@@ -48,7 +55,7 @@ for (const path of searchPath) {
   } catch (err) {
     if (err instanceof TypeError) {
       throw new Error(
-        "Cannot load dynamic library because --unstable flag was not set",
+        "Cannot load dynamic library because --unstable flag was not set"
       );
     }
     continue;

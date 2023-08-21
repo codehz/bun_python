@@ -185,7 +185,9 @@ export class Callback {
  * C PyObject.
  */
 export class PyObject {
-  constructor(public handle: Pointer) {}
+  constructor(public handle: Pointer) {
+    if (handle === 0) this.handle = null as never;
+  }
 
   /**
    * Check if the object is NULL (pointer) or None type in Python.
@@ -760,7 +762,7 @@ export function maybeThrowError() {
   }
 
   const pointers = new BigUint64Array(3);
-  py.PyErr_Fetch(ptr(pointers), ptr(pointers) + 1, ptr(pointers) + 2);
+  py.PyErr_Fetch(ptr(pointers), ptr(pointers) + 8, ptr(pointers) + 16);
 
   const type = new PyObject(+pointers[0].toString()),
     value = new PyObject(+pointers[1].toString()),
