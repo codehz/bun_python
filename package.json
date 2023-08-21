@@ -2,11 +2,12 @@
   "name": "bun_python",
   "module": "index.ts",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "CodeHz",
     "email": "codehz@outlook.com"
   },
+  "description": "Python bindings for Bun (ported from deno_python)",
   "devDependencies": {
     "bun-types": "latest"
   },

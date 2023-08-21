@@ -550,14 +550,14 @@ export class PyObject {
    * Casts a Bool Python object as JS Boolean value.
    */
   asBoolean() {
-    return py.PyLong_AsLong(this.handle) === 1;
+    return Number(py.PyLong_AsLong(this.handle)) === 1;
   }
 
   /**
    * Casts a Int Python object as JS Number value.
    */
   asLong() {
-    return py.PyLong_AsLong(this.handle) as number;
+    return Number(py.PyLong_AsLong(this.handle)) as number;
   }
 
   /**
@@ -843,10 +843,12 @@ export class Python {
    * for using its attributes, functions, classes, etc. from JavaScript.
    */
   runModule(code: string, name?: string) {
+    const compiled = PyObject.from(
+      this.builtins.compile(code, name ?? "__main__", "exec")
+    );
     const module = py.PyImport_ExecCodeModule(
       cstr(name ?? "__main__"),
-      PyObject.from(this.builtins.compile(code, name ?? "__main__", "exec"))
-        .handle
+      compiled.handle
     );
     if (module === null) {
       throw new EvalError("Failed to run python module");
@@ -923,7 +925,6 @@ function toSlice(sliceList: string): PyObject {
       .map((bound) =>
         /^\s*-?\d+\s*$/.test(bound) ? parseInt(bound) : undefined
       );
-
     const pySliceHandle = py.PySlice_New(
       PyObject.from(start).handle,
       PyObject.from(stop).handle,

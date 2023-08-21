@@ -1,7 +1,13 @@
 import { FFIType } from 'bun:ffi';
+import { type,  } from 'node:os';
 
 type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
 export type SYMBOLS = DeepWriteable<typeof SYMBOLS>;
+
+const INT = FFIType.i32;
+const LONG = type() === 'Windows' ? FFIType.i32 as const: FFIType.i64 as const;
+const SSIZE_T = FFIType.i64
+
 export const SYMBOLS = {
   Py_DecodeLocale: {
     args: [FFIType.pointer, FFIType.pointer],
@@ -40,7 +46,7 @@ export const SYMBOLS = {
 
   PyRun_SimpleString: {
     args: [FFIType.cstring],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyErr_Occurred: {
@@ -65,7 +71,7 @@ export const SYMBOLS = {
 
   PyDict_SetItemString: {
     args: [FFIType.pointer, FFIType.cstring, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyObject_GetItem: {
@@ -75,12 +81,12 @@ export const SYMBOLS = {
 
   PyObject_SetItem: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyObject_DelItem: {
     args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyObject_Call: {
@@ -101,12 +107,12 @@ export const SYMBOLS = {
 
   PyObject_SetAttrString: {
     args: [FFIType.pointer, FFIType.cstring, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyObject_HasAttrString: {
     args: [FFIType.pointer, FFIType.cstring],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PySlice_New: {
@@ -115,33 +121,33 @@ export const SYMBOLS = {
   },
 
   PyTuple_New: {
-    args: [FFIType.i32],
+    args: [SSIZE_T],
     returns: FFIType.pointer,
   },
 
   PyTuple_SetItem: {
-    args: [FFIType.pointer, FFIType.i32, FFIType.pointer],
-    returns: FFIType.i32,
+    args: [FFIType.pointer, SSIZE_T, FFIType.pointer],
+    returns: INT,
   },
 
   PyObject_RichCompare: {
-    args: [FFIType.pointer, FFIType.pointer, FFIType.i32],
+    args: [FFIType.pointer, FFIType.pointer, INT],
     returns: FFIType.pointer,
   },
 
   PyObject_RichCompareBool: {
-    args: [FFIType.pointer, FFIType.pointer, FFIType.i32],
-    returns: FFIType.i32,
+    args: [FFIType.pointer, FFIType.pointer, INT],
+    returns: INT,
   },
 
   PyDict_Next: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyDict_SetItem: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyIter_Next: {
@@ -155,17 +161,17 @@ export const SYMBOLS = {
   },
 
   PyList_New: {
-    args: [FFIType.i32],
+    args: [SSIZE_T],
     returns: FFIType.pointer,
   },
 
   PyList_SetItem: {
-    args: [FFIType.pointer, FFIType.i32, FFIType.pointer],
-    returns: FFIType.i32,
+    args: [FFIType.pointer, SSIZE_T, FFIType.pointer],
+    returns: INT,
   },
 
   PyBool_FromLong: {
-    args: [FFIType.i32],
+    args: [LONG],
     returns: FFIType.pointer,
   },
 
@@ -181,21 +187,21 @@ export const SYMBOLS = {
 
   PyLong_AsLong: {
     args: [FFIType.pointer],
-    returns: FFIType.i32,
+    returns: LONG,
   },
 
   PyLong_FromLong: {
-    args: [FFIType.i32],
+    args: [LONG],
     returns: FFIType.pointer,
   },
 
   PyLong_AsUnsignedLongMask: {
     args: [FFIType.pointer],
-    returns: FFIType.u32,
+    returns: LONG,
   },
 
   PyLong_FromUnsignedLong: {
-    args: [FFIType.u32],
+    args: [LONG],
     returns: FFIType.pointer,
   },
 
@@ -205,18 +211,18 @@ export const SYMBOLS = {
   },
 
   PyUnicode_DecodeUTF8: {
-    args: [FFIType.pointer, FFIType.i32, FFIType.pointer],
+    args: [FFIType.pointer, SSIZE_T, FFIType.pointer],
     returns: FFIType.pointer,
   },
 
   PyBytes_FromStringAndSize: {
-    args: [FFIType.pointer, FFIType.i32],
+    args: [FFIType.pointer, SSIZE_T],
     returns: FFIType.pointer,
   },
 
   PyBytes_AsStringAndSize: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyBool_Type: {
@@ -311,11 +317,11 @@ export const SYMBOLS = {
 
   PyList_Size: {
     args: [FFIType.pointer],
-    returns: FFIType.i32,
+    returns: SSIZE_T,
   },
 
   PyList_GetItem: {
-    args: [FFIType.pointer, FFIType.i32],
+    args: [FFIType.pointer, SSIZE_T],
     returns: FFIType.pointer,
   },
 
@@ -346,7 +352,7 @@ export const SYMBOLS = {
 
   PySet_Add: {
     args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyImport_ExecCodeModule: {
@@ -356,7 +362,7 @@ export const SYMBOLS = {
 
   PyObject_IsInstance: {
     args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.i32,
+    returns: INT,
   },
 
   PyDict_GetItemString: {
@@ -366,11 +372,11 @@ export const SYMBOLS = {
 
   PyTuple_Size: {
     args: [FFIType.pointer],
-    returns: FFIType.i32,
+    returns: SSIZE_T,
   },
 
   PyTuple_GetItem: {
-    args: [FFIType.pointer, FFIType.i32],
+    args: [FFIType.pointer, SSIZE_T],
     returns: FFIType.pointer,
   },
 

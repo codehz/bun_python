@@ -1,4 +1,4 @@
-import { CString, ptr } from "bun:ffi";
+import { CString } from "bun:ffi";
 
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
@@ -6,7 +6,7 @@ export const decoder = new TextDecoder();
 const EMPTY = new Uint8Array([0]);
 
 export function cstr(jsstr: string) {
-  return ptr(jsstr ? encoder.encode(jsstr) : EMPTY) as unknown as CString;
+  return (jsstr ? encoder.encode(jsstr) : EMPTY) as unknown as CString;
 }
 
 /**
