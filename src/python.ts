@@ -407,8 +407,7 @@ export class PyObject {
       }
 
       case "bigint": {
-        // TODO
-        return new PyObject(py.PyLong_FromLong(Number(v)));
+        return new PyObject(py.PyLong_FromLong(v as any));
       }
 
       case "object": {
