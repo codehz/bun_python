@@ -2,7 +2,7 @@
   "name": "bun_python",
   "module": "index.ts",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": {
     "name": "CodeHz",
     "email": "codehz@outlook.com"
