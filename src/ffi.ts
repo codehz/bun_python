@@ -46,8 +46,6 @@ if (BUN_PYTHON_PATH) {
 
 let py!: Library<SYMBOLS>["symbols"];
 
-console.log(searchPath);
-
 for (const path of searchPath) {
   try {
     py = dlopen(path, SYMBOLS).symbols as any;
