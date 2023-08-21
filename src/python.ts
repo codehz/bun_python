@@ -1,5 +1,3 @@
-// deno-lint-ignore-file no-explicit-any no-fallthrough
-
 import { FFIType, JSCallback, Pointer, ptr } from "bun:ffi";
 import { type } from "os";
 import { py } from "./ffi";
@@ -68,7 +66,6 @@ export type PythonConvertible =
   | boolean
   | PyObject
   | string
-  // deno-lint-ignore ban-types
   | Symbol
   | PythonProxy
   | PythonConvertible[]
@@ -180,7 +177,7 @@ export class Callback {
  * that is exported from this module too. It contains reference to `PyObject`.
  *
  * Both proxied PyObject and normal PyObject implement some basic methods like
- * `valueOf`, `toString` and Deno inspect to provide pretty-printing, and also
+ * `valueOf`, `toString` and Bun inspect to provide pretty-printing, and also
  * a way to cast Python values as JS types using `valueOf`. For caveats on `valueOf`,
  * see its documentation.
  *
@@ -249,7 +246,6 @@ export class PyObject {
    *   object.
    */
   get proxy(): any {
-    // deno-lint-ignore no-this-alias
     const scope = this;
     // Not using arrow function here because it disallows
     // `new` operator being used.
@@ -257,9 +253,9 @@ export class PyObject {
       return scope.call(args)?.proxy;
     }
 
-    Object.defineProperty(object, Symbol.for("Deno.customInspect"), {
-      value: () => this.toString(),
-    });
+    // Object.defineProperty(object, Symbol.for("Bun.customInspect"), {
+    //   value: () => this.toString(),
+    // });
 
     Object.defineProperty(object, Symbol.iterator, {
       value: () => this[Symbol.iterator](),
@@ -727,9 +723,9 @@ export class PyObject {
     return new PyObject(py.PyObject_Str(this.handle)).asString();
   }
 
-  [Symbol.for("Deno.customInspect")]() {
-    return this.toString();
-  }
+  // [Symbol.for("Bun.customInspect")]() {
+  //   return this.toString();
+  // }
 }
 
 /** Python-related error. */
