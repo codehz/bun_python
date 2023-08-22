@@ -1,12 +1,17 @@
-import { FFIType } from 'bun:ffi';
-import { type,  } from 'node:os';
+import { FFIType } from "bun:ffi";
+import { type } from "node:os";
+import { LibraryDefinition } from "./types";
 
-type DeepWriteable<T> = { -readonly [P in keyof T]: DeepWriteable<T[P]> };
-export type SYMBOLS = DeepWriteable<typeof SYMBOLS>;
+export type SYMBOLS = typeof SYMBOLS;
 
 const INT = FFIType.i32;
-const LONG = type() === 'Windows' ? FFIType.i32 as const: FFIType.i64 as const;
-const SSIZE_T = FFIType.i64
+const LONG =
+  type() === "Windows" ? (FFIType.i32 as const) : (FFIType.i64_fast as const);
+const LONGLONG = FFIType.i64_fast as const;
+const SSIZE_T = FFIType.i64_fast;
+
+export const LONG_MINIMUM = type() === "Windows" ? -2_147_483_648n : -9_223_372_036_854_775_808n;
+export const LONG_MAXIMUM = type() === "Windows" ? 2_147_483_647n : 9_223_372_036_854_775_807n;
 
 export const SYMBOLS = {
   Py_DecodeLocale: {
@@ -90,7 +95,6 @@ export const SYMBOLS = {
   },
 
   PyObject_Call: {
-    callback: true,
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
     returns: FFIType.pointer,
   },
@@ -190,6 +194,11 @@ export const SYMBOLS = {
     returns: LONG,
   },
 
+  PyLong_FromString: {
+    args: [FFIType.cstring, FFIType.pointer, INT],
+    returns: FFIType.pointer,
+  },
+
   PyLong_FromLong: {
     args: [LONG],
     returns: FFIType.pointer,
@@ -198,6 +207,11 @@ export const SYMBOLS = {
   PyLong_AsUnsignedLongMask: {
     args: [FFIType.pointer],
     returns: LONG,
+  },
+
+  PyLong_AsLongLongAndOverflow: {
+    args: [FFIType.pointer, FFIType.pointer],
+    returns: LONGLONG,
   },
 
   PyLong_FromUnsignedLong: {
@@ -378,10 +392,6 @@ export const SYMBOLS = {
   PyTuple_GetItem: {
     args: [FFIType.pointer, SSIZE_T],
     returns: FFIType.pointer,
-  },
-
-  PyTuple_Pack: {
-    type: FFIType.pointer,
   },
 
   PyCFunction_NewEx: {

@@ -1,6 +1,7 @@
-import { dlopen, Library } from "bun:ffi";
 import * as OS from "node:os";
 import { SYMBOLS } from "./symbols";
+import { dlopen_fix, LibraryFix } from "./types";
+import { postSetup } from "./util";
 
 const os = OS.type();
 
@@ -44,11 +45,12 @@ if (BUN_PYTHON_PATH) {
   }
 }
 
-let py!: Library<SYMBOLS>["symbols"];
+let py!: LibraryFix<SYMBOLS>["symbols"];
 
 for (const path of searchPath) {
   try {
-    py = dlopen(path, SYMBOLS).symbols as any;
+    py = dlopen_fix(path, SYMBOLS).symbols;
+    postSetup(path);
     break;
   } catch (err) {
     if (err instanceof TypeError) {

@@ -2,6 +2,7 @@ import { FFIType, JSCallback, Pointer, ptr } from "bun:ffi";
 import { type } from "os";
 import { py } from "./ffi";
 import { SliceItemRegExp, cstr } from "./util";
+import { LONG_MAXIMUM, LONG_MINIMUM } from "./symbols";
 
 const refregistry = new FinalizationRegistry<Pointer>(py.Py_DecRef);
 
@@ -32,8 +33,7 @@ export interface PythonProxy {
  *   `python.float(42.0)`. Note that they become PyObjects,
  *   not JS values but are still easily passable to Python.
  *
- * - `bigint` currently is casted as number and then transformed
- *   to `int` Python type.
+ * - `bigint` becomes `int` in Python.
  *
  * - `null` and `undefined` becomes `None` in Python. Note that when
  *   calling `valueOf` on PyObject, it is always `null`.
@@ -407,7 +407,10 @@ export class PyObject {
       }
 
       case "bigint": {
-        return new PyObject(py.PyLong_FromLong(v as any));
+        if (v < LONG_MINIMUM || v > LONG_MAXIMUM) {
+          return new PyObject(py.PyLong_FromString(cstr(v.toString()), 0, 10));
+        }
+        return new PyObject(py.PyLong_FromLong(v));
       }
 
       case "object": {
@@ -549,21 +552,26 @@ export class PyObject {
    * Casts a Bool Python object as JS Boolean value.
    */
   asBoolean() {
-    return Number(py.PyLong_AsLong(this.handle)) === 1;
+    return py.PyLong_AsLong(this.handle) === 1;
   }
 
   /**
    * Casts a Int Python object as JS Number value.
    */
   asLong() {
-    return Number(py.PyLong_AsLong(this.handle)) as number;
+    const overflow = new Uint32Array(1)
+    const ret = py.PyLong_AsLongLongAndOverflow(this.handle, overflow);
+    if (overflow[0] !== 0) {
+      return BigInt(new PyObject(py.PyObject_Str(this.handle)).asString());
+    }
+    return ret;
   }
 
   /**
    * Casts a Float (Double) Python object as JS Number value.
    */
   asDouble() {
-    return py.PyFloat_AsDouble(this.handle) as number;
+    return py.PyFloat_AsDouble(this.handle);
   }
 
   /**
@@ -593,7 +601,7 @@ export class PyObject {
   asDict() {
     const dict = new Map<PythonConvertible, PythonConvertible>();
     const keys = py.PyDict_Keys(this.handle);
-    const length = py.PyList_Size(keys) as number;
+    const length = py.PyList_Size(keys);
     for (let i = 0; i < length; i++) {
       const key = new PyObject(py.PyList_GetItem(keys, i));
       const value = new PyObject(py.PyDict_GetItem(this.handle, key.handle));
@@ -628,7 +636,7 @@ export class PyObject {
    */
   asTuple() {
     const tuple = new Array<PythonConvertible>();
-    const length = py.PyTuple_Size(this.handle) as number;
+    const length = py.PyTuple_Size(this.handle);
     for (let i = 0; i < length; i++) {
       tuple.push(new PyObject(py.PyTuple_GetItem(this.handle, i)).valueOf());
     }
