@@ -156,7 +156,6 @@ export class Callback {
       {
         args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
         returns: FFIType.pointer,
-        threadsafe: true,
       }
     );
   }
