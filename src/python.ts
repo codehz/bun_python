@@ -374,7 +374,8 @@ export class PyObject {
       deleteProperty: (_, name) => {
         name = String(name);
         if (this.hasAttr(name)) {
-          return this.deleteAttr(name);
+          this.deleteAttr(name);
+          return true;
         } else if (this.isInstance(python.dict)) {
           return py.PyDict_DelItemString(this.handle, cstr(name)) !== 0;
         }
@@ -560,7 +561,9 @@ export class PyObject {
 
   /** Delete attribute from Python object. */
   deleteAttr(attr: string) {
-    return py.PyObject_DelAttrString(this.handle, cstr(attr)) !== 0;
+    if (py.PyObject_SetAttrString(this.handle, cstr(attr), 0) !== 0) {
+      maybeThrowError();
+    }
   }
 
   /**

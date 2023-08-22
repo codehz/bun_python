@@ -100,11 +100,6 @@ export const SYMBOLS = {
     returns: INT,
   },
 
-  PyObject_DelAttrString: {
-    args: [FFIType.pointer, FFIType.cstring],
-    returns: INT,
-  },
-
   PySlice_New: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
     returns: FFIType.pointer,
