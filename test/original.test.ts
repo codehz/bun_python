@@ -105,6 +105,12 @@ class Person:
     expect(dict.prop.valueOf()).toBe("new value");
   });
 
+  test("dict delete item", () => {
+    const dict = python.dict({ prop: "value" });
+    delete dict.prop;
+    expect(dict.prop).toBe(undefined);
+  });
+
   test("dict has item", () => {
     const dict = python.dict({ prop: "value" });
     expect(dict).toHaveProperty("prop");

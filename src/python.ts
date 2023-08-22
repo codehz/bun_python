@@ -376,7 +376,7 @@ export class PyObject {
           this.deleteAttr(name);
           return true;
         } else if (this.isInstance(python.dict)) {
-          return py.PyDict_DelItemString(this.handle, cstr(name)) !== 0;
+          return py.PyDict_DelItemString(this.handle, cstr(name)) === 0;
         }
         return false;
       },
@@ -395,7 +395,7 @@ export class PyObject {
    */
   equals(rhs: PythonConvertible) {
     const rhsObject = PyObject.from(rhs);
-    return py.PyObject_RichCompareBool(this.handle, rhsObject.handle, 3);
+    return py.PyObject_RichCompareBool(this.handle, rhsObject.handle, 3) !== 0;
   }
 
   /**
