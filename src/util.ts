@@ -1,6 +1,6 @@
 import { CString, FFIType } from "bun:ffi";
 import { type } from "node:os";
-import { LibraryDefinition, LibraryFix, dlopen_fix } from "./types";
+import { LibraryFix, dlopen_fix } from "./types";
 
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
@@ -30,7 +30,7 @@ export function postSetup(lib: string) {
       glibcVersion >= 2.34 ? `libc.so.6` : `libdl.so.2`,
       libDlDef
     );
-  } else if (type() === 'Darwin') {
+  } else if (type() === "Darwin") {
     libdl = dlopen_fix(`libdl.dylib`, libDlDef);
   } else {
     return;
