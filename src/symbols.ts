@@ -1,6 +1,5 @@
 import { FFIType } from "bun:ffi";
 import { type } from "node:os";
-import { LibraryDefinition } from "./types";
 
 export type SYMBOLS = typeof SYMBOLS;
 
@@ -10,20 +9,12 @@ const LONG =
 const LONGLONG = FFIType.i64_fast as const;
 const SSIZE_T = FFIType.i64_fast;
 
-export const LONG_MINIMUM = type() === "Windows" ? -2_147_483_648n : -9_223_372_036_854_775_808n;
-export const LONG_MAXIMUM = type() === "Windows" ? 2_147_483_647n : 9_223_372_036_854_775_807n;
+export const LONG_MINIMUM =
+  type() === "Windows" ? -2_147_483_648n : -9_223_372_036_854_775_808n;
+export const LONG_MAXIMUM =
+  type() === "Windows" ? 2_147_483_647n : 9_223_372_036_854_775_807n;
 
 export const SYMBOLS = {
-  Py_DecodeLocale: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  Py_SetProgramName: {
-    args: [FFIType.pointer],
-    returns: FFIType.void,
-  },
-
   Py_Initialize: {
     args: [],
     returns: FFIType.void,
@@ -89,18 +80,8 @@ export const SYMBOLS = {
     returns: INT,
   },
 
-  PyObject_DelItem: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: INT,
-  },
-
   PyObject_Call: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyObject_CallObject: {
-    args: [FFIType.pointer, FFIType.pointer],
     returns: FFIType.pointer,
   },
 
@@ -115,6 +96,11 @@ export const SYMBOLS = {
   },
 
   PyObject_HasAttrString: {
+    args: [FFIType.pointer, FFIType.cstring],
+    returns: INT,
+  },
+
+  PyObject_DelAttrString: {
     args: [FFIType.pointer, FFIType.cstring],
     returns: INT,
   },
@@ -151,6 +137,11 @@ export const SYMBOLS = {
 
   PyDict_SetItem: {
     args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
+    returns: INT,
+  },
+
+  PyDict_DelItemString: {
+    args: [FFIType.pointer, FFIType.cstring],
     returns: INT,
   },
 
@@ -204,19 +195,9 @@ export const SYMBOLS = {
     returns: FFIType.pointer,
   },
 
-  PyLong_AsUnsignedLongMask: {
-    args: [FFIType.pointer],
-    returns: LONG,
-  },
-
   PyLong_AsLongLongAndOverflow: {
     args: [FFIType.pointer, FFIType.pointer],
     returns: LONGLONG,
-  },
-
-  PyLong_FromUnsignedLong: {
-    args: [LONG],
-    returns: FFIType.pointer,
   },
 
   PyUnicode_AsUTF8: {
@@ -226,106 +207,6 @@ export const SYMBOLS = {
 
   PyUnicode_DecodeUTF8: {
     args: [FFIType.pointer, SSIZE_T, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyBytes_FromStringAndSize: {
-    args: [FFIType.pointer, SSIZE_T],
-    returns: FFIType.pointer,
-  },
-
-  PyBytes_AsStringAndSize: {
-    args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
-    returns: INT,
-  },
-
-  PyBool_Type: {
-    args: [],
-    returns: FFIType.pointer,
-  },
-
-  PySlice_Type: {
-    args: [],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Add: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Subtract: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Multiply: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_TrueDivide: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceAdd: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceSubtract: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceMultiply: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceTrueDivide: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Negative: {
-    args: [FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_And: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Or: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Xor: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceAnd: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceOr: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_InPlaceXor: {
-    args: [FFIType.pointer, FFIType.pointer],
-    returns: FFIType.pointer,
-  },
-
-  PyNumber_Invert: {
-    args: [FFIType.pointer],
     returns: FFIType.pointer,
   },
 
