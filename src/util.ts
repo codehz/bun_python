@@ -41,7 +41,7 @@ export function postSetup(lib: string) {
 const EMPTY = new Uint8Array([0]);
 
 export function cstr(jsstr: string) {
-  return (jsstr ? encoder.encode(jsstr) : EMPTY) as unknown as CString;
+  return (jsstr ? encoder.encode(jsstr + "\x00") : EMPTY) as unknown as CString;
 }
 
 /**
