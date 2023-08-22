@@ -1,5 +1,5 @@
-import { dirname, join } from "node:path";
 import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { PythonError, kw, python } from "..";
 
 const sys = python.import("sys");
@@ -36,7 +36,7 @@ function getModuleNameAndVersion(module: string): {
 function findBaseDir() {
   let path = dirname(Bun.main);
   while (!existsSync(join(path, "package.json"))) {
-    if (path === '/') {
+    if (path === "/") {
       return dirname(Bun.main);
     }
     path = dirname(path);
@@ -45,7 +45,7 @@ function findBaseDir() {
 }
 
 export class Pip {
-  constructor(public location: string = join(findBaseDir(), 'pip_packages')) {
+  constructor(public location: string = join(findBaseDir(), "pip_packages")) {
     sys.path.insert(1, this.location);
   }
 
@@ -56,15 +56,7 @@ export class Pip {
    */
   async install(module: string) {
     const argv = sys.argv;
-    sys.argv = [
-      "pip",
-      "install",
-      "-q",
-      "--upgrade",
-      "-t",
-      this.location,
-      module,
-    ];
+    sys.argv = ["pip", "install", "--upgrade", "-t", this.location, module];
 
     console.log(`[pip] Installing ${module}`);
 
