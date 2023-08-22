@@ -394,8 +394,8 @@ export const SYMBOLS = {
     returns: FFIType.pointer,
   },
 
-  PyCFunction_NewEx: {
-    args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
+  PyCFunction_New: {
+    args: [FFIType.pointer, FFIType.pointer],
     returns: FFIType.pointer,
   },
 } as const;

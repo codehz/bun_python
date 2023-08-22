@@ -59,6 +59,7 @@ export interface PythonProxy {
  * If you pass a PythonProxy, its original PyObject will be used.
  */
 export type PythonConvertible =
+  | void
   | number
   | bigint
   | null
@@ -115,7 +116,7 @@ export function kw(
 /**
  * Wraps a JS function into Python callback which can be
  * passed to Python land. It must be destroyed explicitly
- * to free up resources on Rust-side.
+ * to free up resources on Native-side.
  *
  * Example:
  * ```ts
@@ -140,9 +141,9 @@ export class Callback {
 
   constructor(public callback: PythonJSCallback) {
     this.unsafe = new JSCallback(
-      (_self: Pointer, args: Pointer, kwargs: Pointer) => {
+      (_, args: Pointer, kwargs: Pointer) => {
         return PyObject.from(
-          callback(
+          this.callback(
             kwargs === null
               ? {}
               : Object.fromEntries(new PyObject(kwargs).asDict().entries()),
@@ -153,6 +154,7 @@ export class Callback {
       {
         args: [FFIType.pointer, FFIType.pointer, FFIType.pointer],
         returns: FFIType.pointer,
+        threadsafe: true,
       }
     );
   }
@@ -438,11 +440,7 @@ export class PyObject {
           view.setBigUint64(8, BigInt(v.unsafe.ptr ?? 0), LE);
           view.setInt32(16, 0x1 | 0x2, LE);
           view.setBigUint64(20, BigInt(namePtr), LE);
-          const fn = py.PyCFunction_NewEx(
-            ptr(struct),
-            PyObject.from(null).handle,
-            0
-          );
+          const fn = py.PyCFunction_New(struct, PyObject.from(null).handle);
           return new PyObject(fn);
         } else if (v instanceof PyObject) {
           return v;
@@ -559,7 +557,7 @@ export class PyObject {
    * Casts a Int Python object as JS Number value.
    */
   asLong() {
-    const overflow = new Uint32Array(1)
+    const overflow = new Uint32Array(1);
     const ret = py.PyLong_AsLongLongAndOverflow(this.handle, overflow);
     if (overflow[0] !== 0) {
       return BigInt(new PyObject(py.PyObject_Str(this.handle)).asString());
