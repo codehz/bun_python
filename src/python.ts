@@ -1,8 +1,10 @@
 import { FFIType, JSCallback, Pointer, ptr } from "bun:ffi";
-import { type } from "os";
+import { readdirSync } from "node:fs";
+import { type } from "node:os";
+import { join } from "node:path";
 import { py } from "./ffi";
-import { SliceItemRegExp, cstr } from "./util";
 import { LONG_MAXIMUM, LONG_MINIMUM } from "./symbols";
+import { SliceItemRegExp, cstr } from "./util";
 
 const refregistry = new FinalizationRegistry<Pointer>(py.Py_DecRef);
 
@@ -807,6 +809,13 @@ export class Python {
   kw = kw;
 
   constructor() {
+    // if (Bun.env.VIRTUAL_ENV) {
+    //   // console.log(Buffer.from(join(Bun.env.VIRTUAL_ENV, "bin", "python") + "\x00", "utf16le"))
+    //   py.Py_SetPythonHome(
+    //     Buffer.from(join(Bun.env.VIRTUAL_ENV) + "\x00", "utf16le")
+    //   );
+    // }
+    // console.log('here')
     py.Py_Initialize();
     this.builtins = this.import("builtins");
 
@@ -828,6 +837,18 @@ export class Python {
     const os = this.import("os");
 
     sys.argv = [""];
+
+    if (Bun.env.VIRTUAL_ENV) {
+      sys.prefix = Bun.env.VIRTUAL_ENV;
+      sys.exec_prefix = Bun.env.VIRTUAL_ENV;
+      const version = readdirSync(join(Bun.env.VIRTUAL_ENV, "lib"))[0];
+      if (version) {
+        sys.path.insert(
+          0,
+          join(Bun.env.VIRTUAL_ENV, "lib", version, "site-packages")
+        );
+      }
+    }
 
     if (type() === "Darwin") {
       sys.executable = os.path.join(sys.exec_prefix, "bin", "python3");
