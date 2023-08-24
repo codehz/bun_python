@@ -52,12 +52,7 @@ for (const path of searchPath) {
     py = dlopen(path, SYMBOLS).symbols;
     postSetup(path);
     break;
-  } catch (err) {
-    if (err instanceof TypeError) {
-      throw new Error(
-        "Cannot load dynamic library because --unstable flag was not set"
-      );
-    }
+  } catch {
     continue;
   }
 }
