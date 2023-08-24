@@ -1,6 +1,5 @@
-import { CString, FFIType } from "bun:ffi";
+import { CString, FFIType, Library, dlopen } from "bun:ffi";
 import { type } from "node:os";
-import { LibraryFix, dlopen_fix } from "./types";
 
 export const encoder = new TextEncoder();
 export const decoder = new TextDecoder();
@@ -20,18 +19,15 @@ const libDlDef = {
  * from Python C API.
  */
 export function postSetup(lib: string) {
-  let libdl: LibraryFix<typeof libDlDef>;
+  let libdl: Library<typeof libDlDef>;
   if (type() === "Linux") {
-    const libc = dlopen_fix(`libc.so.6`, {
+    const libc = dlopen(`libc.so.6`, {
       gnu_get_libc_version: { args: [], returns: FFIType.cstring },
     } as const);
     const glibcVersion = +libc.symbols.gnu_get_libc_version();
-    libdl = dlopen_fix(
-      glibcVersion >= 2.34 ? `libc.so.6` : `libdl.so.2`,
-      libDlDef
-    );
+    libdl = dlopen(glibcVersion >= 2.34 ? `libc.so.6` : `libdl.so.2`, libDlDef);
   } else if (type() === "Darwin") {
-    libdl = dlopen_fix(`libdl.dylib`, libDlDef);
+    libdl = dlopen(`libdl.dylib`, libDlDef);
   } else {
     return;
   }

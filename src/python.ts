@@ -188,7 +188,7 @@ export class Callback {
  * C PyObject.
  */
 export class PyObject {
-  constructor(public handle: Pointer) {
+  constructor(public handle: Pointer | null) {
     if (handle === 0) this.handle = null as never;
   }
 
@@ -206,6 +206,7 @@ export class PyObject {
    * Increases ref count of the object and returns it.
    */
   get owned(): PyObject {
+    if (this.handle === null) throw new Error("Object is null");
     py.Py_IncRef(this.handle);
     refregistry.register(this, this.handle);
     return this;
