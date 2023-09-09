@@ -259,9 +259,9 @@ export class PyObject {
       return scope.call(args)?.proxy;
     }
 
-    // Object.defineProperty(object, Symbol.for("Bun.customInspect"), {
-    //   value: () => this.toString(),
-    // });
+    Object.defineProperty(object, Bun.inspect.custom, {
+      value: () => this.toString(),
+    });
 
     Object.defineProperty(object, Symbol.iterator, {
       value: () => this[Symbol.iterator](),
@@ -750,9 +750,9 @@ export class PyObject {
     return new PyObject(py.PyObject_Str(this.handle)).asString();
   }
 
-  // [Symbol.for("Bun.customInspect")]() {
-  //   return this.toString();
-  // }
+  [Bun.inspect.custom]() {
+    return this.toString();
+  }
 }
 
 /** Python-related error. */
