@@ -25,6 +25,36 @@ Run this code:
 bun run <file>
 ```
 
+## Example for using bun plugin (aka, import from python:*)
+
+Since Bun provides a plugin API, it can extend the import behavior at runtime. We have also made a bun plugin for it, which allows you to import python modules using something like `import * as np from "python:numpy"`.
+Unfortunately, there is currently no way to directly make the bun use the preload script from npm, so you have to manually create a preload script to load the python plugin.
+
+Setup:
+
+Create a file named preload.ts:
+```typescript
+import "bun_python/plugin.ts"
+```
+
+Setup bunfig.toml
+```typescript
+preload = ["./preload.ts"]
+```
+(Or you could use `bun run -r ./preload.ts demo.ts`)
+
+Demo code:
+```typescript
+import * as np from 'python:numpy';
+import * as plt from 'python:matplotlib.pyplot';
+
+const xpoints = np.array([1, 8]);
+const ypoints = np.array([3, 10]);
+
+plt.plot(xpoints, ypoints);
+plt.show();
+```
+
 ## Python Installation
 
 This module uses FFI to interface with the Python interpreter's C API. So you must have an existing Python installation (with the shared library), which is something like python310.dll, etc.
