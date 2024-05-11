@@ -472,7 +472,7 @@ export class PyObject {
       case "object": {
         if (v === null) {
           return python.builtins.None[ProxiedPyObject];
-        } else if (ProxiedPyObject in v) {
+        } else if (ProxiedPyObject in v && v[ProxiedPyObject]) {
           const proxy = v as PythonProxy;
           return proxy[ProxiedPyObject];
         } else if (Array.isArray(v)) {
@@ -482,9 +482,6 @@ export class PyObject {
           }
           return new PyObject(list);
         } else if (v instanceof Callback) {
-          if (v[ProxiedPyObject]) {
-            return v[ProxiedPyObject];
-          }
           const pyMethodDef = new Uint8Array(8 + 8 + 4 + 8);
           const view = new DataView(pyMethodDef.buffer);
           const LE =
