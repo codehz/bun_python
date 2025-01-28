@@ -9,7 +9,7 @@
   },
   "description": "Python bindings for Bun (ported from deno_python)",
   "devDependencies": {
-    "bun-types": "^1.2.1"
+    "@types/bun": "^1.2.1"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
