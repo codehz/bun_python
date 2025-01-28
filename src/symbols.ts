@@ -1,4 +1,4 @@
-import { FFIType } from "bun:ffi";
+import { FFIType, type FFIFunction, type Narrow } from "bun:ffi";
 import { type } from "node:os";
 
 export type SYMBOLS = typeof SYMBOLS;
@@ -309,4 +309,4 @@ export const SYMBOLS = {
     args: [FFIType.pointer, FFIType.pointer],
     returns: FFIType.pointer,
   },
-} as const;
+} as const satisfies Record<string, Narrow<FFIFunction>>;

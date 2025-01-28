@@ -3,8 +3,7 @@ import { readdirSync } from "node:fs";
 import { type } from "node:os";
 import { join } from "node:path";
 import { py as py_unsafe } from "./ffi";
-import { type SYMBOLS } from "./symbols";
-import { LONG_MAXIMUM, LONG_MINIMUM } from "./symbols";
+import { LONG_MAXIMUM, LONG_MINIMUM, type SYMBOLS } from "./symbols";
 import { SliceItemRegExp, cstr } from "./util";
 
 /**
@@ -806,11 +805,12 @@ export class PyObject {
 export class PythonError extends Error {
   name = "PythonError";
 
-  constructor(
-    public type: PyObject,
-    public value: PyObject,
-    public traceback: PyObject
-  ) {
+  #type: PyObject;
+  #value: PyObject;
+
+  #traceback: PyObject;
+
+  constructor(type: PyObject, value: PyObject, traceback: PyObject) {
     let message = (value ?? type).toString() ?? "Unknown error";
     let stack: string | undefined;
     if (!traceback.isNone) {
@@ -820,7 +820,19 @@ export class PythonError extends Error {
     }
 
     super(message);
+    this.#type = type;
+    this.#value = value;
+    this.#traceback = traceback;
     this.stack = stack;
+  }
+  get type() {
+    return this.#type;
+  }
+  get value() {
+    return this.#value;
+  }
+  get traceback() {
+    return this.#traceback;
   }
 }
 
@@ -836,9 +848,9 @@ export function maybeThrowError() {
   const pointers = new BigUint64Array(3);
   py.PyErr_Fetch(ptr(pointers), ptr(pointers) + 8, ptr(pointers) + 16);
 
-  const type = new PyObject(+pointers[0].toString()),
-    value = new PyObject(+pointers[1].toString()),
-    traceback = new PyObject(+pointers[2].toString());
+  const type = new PyObject(+pointers[0].toString());
+  const value = new PyObject(+pointers[1].toString());
+  const traceback = new PyObject(+pointers[2].toString());
 
   throw new PythonError(type, value, traceback);
 }
@@ -976,6 +988,7 @@ export class Python {
       compiled.handle
     );
     if (module === null) {
+      maybeThrowError();
       throw new EvalError("Failed to run python module");
     }
     return new PyObject(module)?.proxy;
