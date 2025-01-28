@@ -1,7 +1,7 @@
-import { python } from "..";
+import pip from "../ext/pip";
 
-const np = python.import("numpy");
-const plt = python.import("matplotlib.pyplot");
+const np = await pip.import("numpy");
+const plt = await pip.import("matplotlib", "matplotlib.pyplot");
 
 const xpoints = np.array([1, 8]);
 const ypoints = np.array([3, 10]);

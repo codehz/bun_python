@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { PythonError, kw, python } from "..";
+import { channel } from "node:diagnostics_channel";
 
+const diag = channel("pip");
 const sys = python.import("sys");
 const runpy = python.import("runpy");
 
@@ -58,7 +60,11 @@ export class Pip {
     const argv = sys.argv;
     sys.argv = ["pip", "install", "--upgrade", "-t", this.location, module];
 
-    console.log(`[pip] Installing ${module}`);
+    diag.publish({
+      action: "install",
+      location: this.location,
+      module,
+    });
 
     try {
       runpy.run_module("pip", kw`run_name=${"__main__"}`);
@@ -67,7 +73,7 @@ export class Pip {
         !(
           error instanceof PythonError &&
           error.type.isInstance(python.builtins.SystemExit()) &&
-          error.value.asLong() === 0
+          error.value.valueOf() == 0
         )
       ) {
         throw error;
