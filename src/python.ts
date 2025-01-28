@@ -463,7 +463,9 @@ export class PyObject {
 
       case "bigint": {
         if (v < LONG_MINIMUM || v > LONG_MAXIMUM) {
-          return new PyObject(py.PyLong_FromString(cstr(v.toString()), 0, 10));
+          return new PyObject(
+            py.PyLong_FromString(cstr(v.toString()), null, 10)
+          );
         }
         return new PyObject(py.PyLong_FromLong(v));
       }
@@ -504,7 +506,7 @@ export class PyObject {
         } else if (v instanceof PyObject) {
           return v;
         } else if (v instanceof Set) {
-          const set = py.PySet_New(0);
+          const set = py.PySet_New(null);
           for (const i of v) {
             const item = PyObject.from(i);
             py.PySet_Add(set, item.owned.handle);
@@ -533,10 +535,10 @@ export class PyObject {
           const encoder = new TextEncoder();
           const u8 = encoder.encode(str);
           return new PyObject(
-            py.PyUnicode_DecodeUTF8(ptr(u8), u8.byteLength, 0)
+            py.PyUnicode_DecodeUTF8(ptr(u8), u8.byteLength, null)
           );
         } else {
-          return new PyObject(py.PyUnicode_DecodeUTF8(0, 0, 0));
+          return new PyObject(py.PyUnicode_DecodeUTF8(null, 0, null));
         }
       }
 
@@ -607,7 +609,7 @@ export class PyObject {
 
   /** Delete attribute from Python object. */
   deleteAttr(attr: string) {
-    if (py.PyObject_SetAttrString(this.handle, cstr(attr), 0) !== 0) {
+    if (py.PyObject_SetAttrString(this.handle, cstr(attr), null) !== 0) {
       maybeThrowError();
     }
   }
@@ -846,11 +848,15 @@ export function maybeThrowError() {
   }
 
   const pointers = new BigUint64Array(3);
-  py.PyErr_Fetch(ptr(pointers), ptr(pointers) + 8, ptr(pointers) + 16);
+  py.PyErr_Fetch(
+    ptr(pointers),
+    (ptr(pointers) + 8) as Pointer,
+    (ptr(pointers) + 16) as Pointer
+  );
 
-  const type = new PyObject(+pointers[0].toString());
-  const value = new PyObject(+pointers[1].toString());
-  const traceback = new PyObject(+pointers[2].toString());
+  const type = new PyObject(Number(pointers[0]) as Pointer);
+  const value = new PyObject(Number(pointers[1]) as Pointer);
+  const traceback = new PyObject(Number(pointers[2]) as Pointer);
 
   throw new PythonError(type, value, traceback);
 }
