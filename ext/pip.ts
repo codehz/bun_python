@@ -92,7 +92,7 @@ export class Pip {
     const { name } = getModuleNameAndVersion(module);
     entrypoint ??= name;
 
-    if (!existsSync(join(this.location, entrypoint)))
+    if (!existsSync(join(this.location, module)))
       await this.install(module);
 
     return python.import(entrypoint);
