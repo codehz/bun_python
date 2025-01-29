@@ -76,7 +76,9 @@ export class Pip {
           error.value.valueOf() == 0
         )
       ) {
-        throw error;
+        throw new Error(`Failed to install module: ${module}`, {
+          cause: error,
+        });
       }
     } finally {
       sys.argv = argv;
