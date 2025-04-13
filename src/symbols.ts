@@ -5,14 +5,14 @@ export type SYMBOLS = typeof SYMBOLS;
 
 const INT = FFIType.i32;
 const LONG =
-  type() === "Windows" ? (FFIType.i32 as const) : (FFIType.i64_fast as const);
+  type() === "Windows_NT" ? (FFIType.i32 as const) : (FFIType.i64_fast as const);
 const LONGLONG = FFIType.i64_fast as const;
 const SSIZE_T = FFIType.i64_fast;
 
 export const LONG_MINIMUM =
-  type() === "Windows" ? -2_147_483_648n : -9_223_372_036_854_775_808n;
+  type() === "Windows_NT" ? -2_147_483_648n : -9_223_372_036_854_775_808n;
 export const LONG_MAXIMUM =
-  type() === "Windows" ? 2_147_483_647n : 9_223_372_036_854_775_807n;
+  type() === "Windows_NT" ? 2_147_483_647n : 9_223_372_036_854_775_807n;
 
 export const SYMBOLS = {
   Py_Initialize: {

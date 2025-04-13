@@ -21,7 +21,7 @@ if (BUN_PYTHON_PATH) {
   searchPath.push(BUN_PYTHON_PATH);
 } else {
   switch (os) {
-    case "Windows":
+    case "Windows_NT":
     case "Linux":
       searchPath.push(
         ...SUPPORTED_VERSIONS.map(
