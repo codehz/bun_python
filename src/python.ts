@@ -885,6 +885,16 @@ export function wrapFunction<T extends (...args: any[]) => any>(
   };
 }
 
+const Inited = Symbol.for("python inited");
+const VenvInjected = Symbol.for("virtual env injected");
+
+const G = global as any as {
+  [Inited]: {
+    threadState: Pointer;
+  };
+  [VenvInjected]: boolean;
+};
+
 /**
  * Python interface. Do not construct directly, use `python` instead.
  */
@@ -926,12 +936,21 @@ export class Python {
     //   );
     // }
     // console.log('here')
-    py.Py_Initialize();
-    const threadState = py.PyEval_SaveThread();
-    if (threadState === null) {
-      throw new Error("Failed to release Global Interpreter Lock");
+    const inited = G[Inited];
+    if (inited) {
+      this.#threadState = inited.threadState;
     } else {
-      this.#threadState = threadState;
+      py.Py_Initialize();
+
+      const threadState = py.PyEval_SaveThread();
+      if (threadState === null) {
+        throw new Error("Failed to release Global Interpreter Lock");
+      } else {
+        this.#threadState = threadState;
+      }
+      G[Inited] = {
+        threadState,
+      };
     }
 
     this.builtins = this.import("builtins");
@@ -955,7 +974,8 @@ export class Python {
 
     sys.argv = [""];
 
-    if (Bun.env.VIRTUAL_ENV) {
+    if (Bun.env.VIRTUAL_ENV && !G[VenvInjected]) {
+      G[VenvInjected] = true;
       sys.prefix = Bun.env.VIRTUAL_ENV;
       sys.exec_prefix = Bun.env.VIRTUAL_ENV;
       const version = readdirSync(join(Bun.env.VIRTUAL_ENV, "lib"))[0];
